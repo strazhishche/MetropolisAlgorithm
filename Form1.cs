@@ -31,7 +31,6 @@ namespace Thermodynamics
         {
             InitializeComponent();
 
-
             dTemperature = temperature / steps;
             progressBar1.Maximum = steps;
 
@@ -42,7 +41,6 @@ namespace Thermodynamics
                     particles[i, j] = new Particle();
                 }
             }
-
         }
 
         private void CalculationButton_Click(object sender, EventArgs e)
@@ -76,7 +74,6 @@ namespace Thermodynamics
                     }
                 }
             }
-
             DrawParticles();
         }
 

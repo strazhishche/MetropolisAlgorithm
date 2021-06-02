@@ -12,7 +12,6 @@ namespace Thermodynamics
 {
     public partial class Form1 : Form
     {
-        //for drawning
         const int distance = 7;
         const int drawX = 40;
         const int drawY = 40;
@@ -73,10 +72,9 @@ namespace Thermodynamics
                         particles[i, j].ChangeSpin();
                     }
                 }
-                DrawParticle(i, j);
             }
             progressBar1.Value = steps;
-            //DrawParticles();
+            DrawParticles();
         }
 
         class Particle
@@ -154,36 +152,7 @@ namespace Thermodynamics
                 }
             }
         }
-        
-        /*
-        public void Initiation()
-        {
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = 0; j < n; j++)
-                {
-                    particles[i, j].SetSpin(RandomSpin());
 
-                    if (j == 0)
-                    {
-                            particles[i, j].SetX(drawX);
-                    }
-                    else
-                    {
-                        particles[i, j].SetX(particles[i, j - 1].GetX() + distance);
-                    }
-
-                    if (i == 0)
-                    {
-                        particles[i, j].SetY(drawY);
-                    }
-                    else
-                    {
-                        particles[i, j].SetY(particles[i - 1, j].GetY() + distance);
-                    }
-                }
-            }
-        }*/
         public void DrawRectangle()
         {
             Graphics draw = this.CreateGraphics();
@@ -231,22 +200,6 @@ namespace Thermodynamics
                 + particles[i, left].GetSpin() + particles[i, right].GetSpin()
                 + particles[down, j].GetSpin() + particles[down, right].GetSpin()) * particles[i, j].GetSpin();
         }
-        /*
-        public int CalculatedEnergy(int i, int j)
-        {
-            int up = i - 1;
-            int down = i + 1;
-            int left = j - 1;
-            int right = j + 1;
-
-            if (i == 0) up = n - 1;
-            if (i == n - 1) down = 0;
-            if (j == 0) left = n - 1;
-            if (j == n - 1) right = 0;
-
-            return (particles[up, j].GetSpin() + particles[i, left].GetSpin() + particles[i, right].GetSpin()
-                + particles[down, j].GetSpin()) * particles[i, j].GetSpin();
-        }*/
 
         public int RandomSpin()
         {

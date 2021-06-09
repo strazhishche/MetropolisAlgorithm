@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Thermodynamics
 {
@@ -16,15 +17,17 @@ namespace Thermodynamics
         const int drawX = 40;
         const int drawY = 40;
 
-        const int n = 100;
-        const int steps = 100000;
+        const int n = 30;
+        const int steps = 100;
         public double temperature = 5;
         public double dTemperature;
+        public int energy;
         Particle[,] particles = new Particle[n, n];
 
         Random random = new Random();
 
-        public double rand; 
+        public double rand;
+        string text;
 
         public Form1()
         {
@@ -48,30 +51,79 @@ namespace Thermodynamics
             Initiation();
             DrawRectangle();
             DrawParticles();
-
-            for (int k = 0; k < steps-1; k++)
+            energy = 0;
+            string path = @"C:\SomeDir2";
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            if (!dirInfo.Exists)
             {
-                temperature = temperature - dTemperature;
-                progressBar1.Value = k;
+                dirInfo.Create();
+            }
+            //Console.WriteLine("Введите строку для записи в файл:");
+            text =" energy2  energy1 dEnergy || exp rand  || changeSpin\n";
 
-                int i = random.Next(0, n);
-                int j = random.Next(0, n);
-                double exp;
+            // запись в файл
+            using (var fstream = new StreamWriter($"{path}\\note.txt", true))
+            {
+                // преобразуем строку в байты
+                //byte[] array = System.Text.Encoding.Default.GetBytes(text);
+                // запись массива байтов в файл
+                fstream.WriteLine(text);
+                //Console.WriteLine("Текст записан в файл");
+            }
 
-                energy1 = CalculatedEnergy(i, j);
-                particles[i, j].ChangeSpin();
-                energy2 = CalculatedEnergy(i, j);
-                dEnergy = energy1 - energy2;
-                exp = Math.Exp(-dEnergy / temperature);
-                if (dEnergy > 0 )
+            
+
+            for (int l = 0; l < steps; l++)
+            {
+                progressBar1.Value = l;
+                for (int k = 0; k < 10 * n * n; k++)
                 {
-                    rand = random.NextDouble();
 
-                    if (rand > exp)
+                    int i = random.Next(0, n);
+                    int j = random.Next(0, n);
+                    double exp;
+
+                    
+
+                    energy1 = CalculatedEnergy(i, j);
+                    particles[i, j].ChangeSpin();
+                    energy2 = CalculatedEnergy(i, j);
+                    dEnergy = energy2 - energy1;
+                    if (dEnergy > 0)
                     {
-                        particles[i, j].ChangeSpin();
+                        exp = Math.Exp(-(dEnergy) / temperature);
+                        rand = random.NextDouble();
+
+                        text = Convert.ToString(energy2) + " - " + Convert.ToString(energy1) + " = " + Convert.ToString(dEnergy) + " || temp = "+temperature+" || exp = " + Convert.ToString(exp) + " rand = " 
+                            + Convert.ToString(rand) + " || " + Convert.ToString(rand < exp);
+
+                        // запись в файл
+                        using (var writer = new StreamWriter($"{path}\\note.txt", true))
+                        {
+                            writer.WriteLine(text);
+                        }
+
+                        if (rand >= exp)
+                        {
+                            particles[i, j].ChangeSpin();
+                        }
                     }
                 }
+
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        energy += CalculatedEnergy(i, j);
+                    }
+                }
+
+                using (var writer = new StreamWriter($"{path}\\energy.txt", true))
+                {
+                    writer.WriteLine("полная энергия = " + energy / 2);
+                }
+                //DrawParticles();
+                temperature = Math.Round(temperature - dTemperature, 2, MidpointRounding.AwayFromZero);
             }
             progressBar1.Value = steps;
             DrawParticles();
@@ -116,7 +168,7 @@ namespace Thermodynamics
                 _spin = spin;
             }
         }
-        
+        /*
         public void Initiation()
         {
             for (int i = 0; i < n; i++)
@@ -135,6 +187,35 @@ namespace Thermodynamics
                         {
                             particles[i, j].SetX(drawX);
                         }
+                    }
+                    else
+                    {
+                        particles[i, j].SetX(particles[i, j - 1].GetX() + distance);
+                    }
+
+                    if (i == 0)
+                    {
+                        particles[i, j].SetY(drawY);
+                    }
+                    else
+                    {
+                        particles[i, j].SetY(particles[i - 1, j].GetY() + distance);
+                    }
+                }
+            }
+        }*/
+
+            public void Initiation()
+        {
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    particles[i, j].SetSpin(RandomSpin());
+
+                    if (j == 0)
+                    {
+                        particles[i, j].SetX(drawX);
                     }
                     else
                     {
@@ -183,7 +264,7 @@ namespace Thermodynamics
                 }
             }
         }
-        
+        /*
         public int CalculatedEnergy(int i, int j)
         {
             int up = i - 1;
@@ -199,8 +280,24 @@ namespace Thermodynamics
             return (particles[up, left].GetSpin() + particles[up, j].GetSpin()
                 + particles[i, left].GetSpin() + particles[i, right].GetSpin()
                 + particles[down, j].GetSpin() + particles[down, right].GetSpin()) * particles[i, j].GetSpin();
-        }
+        }*/
 
+        public int CalculatedEnergy(int i, int j)
+        {
+            int up = i - 1;
+            int down = i + 1;
+            int left = j - 1;
+            int right = j + 1;
+
+            if (i == 0) up = n - 1;
+            if (i == n - 1) down = 0;
+            if (j == 0) left = n - 1;
+            if (j == n - 1) right = 0;
+
+            return (particles[up, j].GetSpin()
+                + particles[i, left].GetSpin() + particles[i, right].GetSpin()
+                + particles[down, j].GetSpin()) * particles[i, j].GetSpin();
+        }
         public int RandomSpin()
         {
             int spin;
@@ -211,6 +308,44 @@ namespace Thermodynamics
             }
 
             return spin;
+        }
+
+
+        static void WriteFile(int energy1, int energy2, int dEnergy, double exp, double rand, bool changeSpin)
+        {
+            // создаем каталог для файла
+            string path = @"C:\SomeDir2";
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
+            //Console.WriteLine("Введите строку для записи в файл:");
+            string text = Convert.ToString(energy2) +" - "+ Convert.ToString(energy1) +" = "+ Convert.ToString(dEnergy) +" || exp = "+ Convert.ToString(exp) +" rand = "+ Convert.ToString(rand) +" || "+ Convert.ToString(changeSpin) ;
+
+            // запись в файл
+            using (FileStream fstream = new FileStream($"{path}\\note.txt", FileMode.OpenOrCreate))
+            {
+                // преобразуем строку в байты
+                byte[] array = System.Text.Encoding.Default.GetBytes(text);
+                // запись массива байтов в файл
+                fstream.Write(array, 0, array.Length);
+               //Console.WriteLine("Текст записан в файл");
+            }
+            /*
+            // чтение из файла
+            using (FileStream fstream = File.OpenRead($"{path}\note.txt"))
+            {
+                // преобразуем строку в байты
+                byte[] array = new byte[fstream.Length];
+                // считываем данные
+                fstream.Read(array, 0, array.Length);
+                // декодируем байты в строку
+                string textFromFile = System.Text.Encoding.Default.GetString(array);
+                Console.WriteLine($"Текст из файла: {textFromFile}");
+            }
+
+            Console.ReadLine();*/
         }
     }
 }

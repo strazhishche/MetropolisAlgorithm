@@ -31,6 +31,7 @@ namespace Thermodynamics
         {
             this.CalculationButton = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.Show = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // CalculationButton
@@ -52,11 +53,22 @@ namespace Thermodynamics
             this.progressBar1.Step = 1;
             this.progressBar1.TabIndex = 1;
             // 
+            // Show
+            // 
+            this.Show.Location = new System.Drawing.Point(225, 10);
+            this.Show.Name = "Show";
+            this.Show.Size = new System.Drawing.Size(100, 25);
+            this.Show.TabIndex = 2;
+            this.Show.Text = "Показать";
+            this.Show.UseVisualStyleBackColor = true;
+            this.Show.Click += new System.EventHandler(this.Show_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 761);
+            this.Controls.Add(this.Show);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.CalculationButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -72,6 +84,7 @@ namespace Thermodynamics
 
         private System.Windows.Forms.Button CalculationButton;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Button Show;
     }
 }
 
